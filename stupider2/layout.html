@@ -798,16 +798,50 @@
             document.getElementById('locationStatus').textContent = 'Location history cleared.';
         }
 
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in kilometers
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c; // Distance in km
+            return distance;
+        }
+
         function renderLocationHistory() {
             const list = document.getElementById('locationList');
             list.innerHTML = '';
+            let totalDistance = 0;
 
             locationHistory.forEach((entry, index) => {
                 const item = document.createElement('li');
                 item.className = 'location-item';
-                item.textContent = `#${index + 1} ${entry.latitude.toFixed(6)}, ${entry.longitude.toFixed(6)} (${entry.timestamp})`;
+                
+                let distanceText = '';
+                if (index > 0) {
+                    const prevEntry = locationHistory[index - 1];
+                    const distance = calculateDistance(
+                        prevEntry.latitude, prevEntry.longitude,
+                        entry.latitude, entry.longitude
+                    );
+                    totalDistance += distance;
+                    distanceText = ` | ${distance.toFixed(3)}km from prev`;
+                }
+                
+                item.textContent = `#${index + 1} ${entry.latitude.toFixed(6)}, ${entry.longitude.toFixed(6)}${distanceText} (${entry.timestamp})`;
                 list.appendChild(item);
             });
+
+            if (locationHistory.length > 1) {
+                const totalItem = document.createElement('li');
+                totalItem.className = 'location-item';
+                totalItem.style.fontWeight = 'bold';
+                totalItem.style.backgroundColor = 'rgba(255, 255, 255, 0.15)';
+                totalItem.textContent = `Total distance traveled: ${totalDistance.toFixed(3)}km`;
+                list.appendChild(totalItem);
+            }
         }
 
         // Initialize button at random position
