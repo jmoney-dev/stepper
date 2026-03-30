@@ -1,5 +1,7 @@
 {
+  "framework": "nextjs",
   "buildCommand": "npm run build --prefix feetfinder",
   "installCommand": "npm install --prefix feetfinder",
-  "devCommand": "npm run dev --prefix feetfinder"
+  "devCommand": "npm run dev --prefix feetfinder",
+  "outputDirectory": "feetfinder/.next"
 }
